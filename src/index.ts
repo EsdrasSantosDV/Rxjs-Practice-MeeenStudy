@@ -1,10 +1,10 @@
 import { Observable } from 'rxjs';
 
 const someObservable$ = new Observable<string>(subscriber => {
-  subscriber.next('Alice');
-  subscriber.next('Ben');
-  subscriber.next('Charlie');
-  subscriber.complete();
+  setTimeout(()=> { subscriber.next('Alice')},7000);
+  setTimeout(()=>{ subscriber.next('Ben');},5000);
+  setTimeout(()=>{ subscriber.next('Charlie');},10000);
 });
 
-someObservable$.subscribe(value => console.log(value));
+const subscription=someObservable$.subscribe(value => console.log("sub1",value));
+setTimeout(()=>{const subscription2=someObservable$.subscribe(value=>console.log("sub2",value))},2000);
