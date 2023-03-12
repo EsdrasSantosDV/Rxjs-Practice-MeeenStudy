@@ -13,9 +13,11 @@ const newObservable$ = new Observable<string>((subscriber)=>{
   //AQUI ESTAMOS EMITINDO O OLIVEIRA DE FORMA ASSICRONA
 
   //O OBSERVABLE PODE EMITIR VALORES SINCRONOS E ASSICRONOS
-  setTimeout(()=>{subscriber.next("Oliveira")},2000);
+  //A SE ACONTECER O ERROR OU UM COMPLETE, O OBSERVABLE NÃO EMITE MAIS VALORES VIU
+  //NUNCA BI
+  setTimeout(()=>{subscriber.next("Oliveira"),subscriber.complete()},2000);
 
-  setTimeout(()=>{subscriber.error(new Error('messagem do erro'))},6000);
+  setTimeout(()=>{subscriber.next("DE");subscriber.error(new Error('messagem do erro'))},6000);
 
   //LOGICA TEARDOWN E QUANDO O OBSERVABLE NOTIFICA UM COMPLETE, OU QUANDO ELE NOTIFICA UM ERRO
   return () =>{
