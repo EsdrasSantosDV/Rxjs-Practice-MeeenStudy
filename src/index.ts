@@ -9,8 +9,11 @@ const newObservable$ = new Observable<string>(subscriber=>{
   subscriber.next("ESDRAS");
   subscriber.next("SANTOS");
   subscriber.next("DE");
-  subscriber.next("OLIVEIRA");
-  
+  //AQUI ESTAMOS EMITINDO O OLIVEIRA DE FORMA ASSICRONA
+
+  //O OBSERVABLE PODE EMITIR VALORES SINCRONOS E ASSICRONOS
+  setTimeout(()=>subscriber.next("Oliveira"),2000);
+    
   
 });
 console.log('antes da assinatura');
