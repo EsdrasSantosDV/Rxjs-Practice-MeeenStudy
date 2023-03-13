@@ -5,15 +5,23 @@ import {makeLogger} from "ts-loader/dist/logger";
 //COLOCAMOS NO GENERIC ABAIXO QU EELE RETORNA STRING
 const newObservable$ = new Observable<number>((subscriber)=>{
     let number=1;
-    setInterval((i:number)=>{subscriber.next(number);number++},1000);
-    setTimeout(()=>subscriber.complete(),7000);
+    const interval=setInterval((i:number)=>{subscriber.next(number);number++},1000);
 
+  //LOGICA TEARDOWN E QUANDO A ASSINATURA TERMINA
+  return ()=>{
+    console.log("logica teardown");
+
+    //TEMOS A LOGICA DE LIMPAR O INTERVAL , QUE SERIA COLOCAR O COMPORTAMENTO DE NÃO DEXIAR EXCESSO DE MEMORIA
+    clearInterval(interval);
+  }
 });
-console.log('antes da assinatura')
+
 
 const observer = newObservable$.subscribe({next:(value)=>console.log(value),complete:()=>console.log("finalziou"),error:(err)=>console.log(err.message)
-
-
 });
 
-console.log("depois da assinatura");
+const observer2 = newObservable$.subscribe({next:(value)=>console.log("2-",value),complete:()=>console.log("finalziou"),error:(err)=>console.log(err.message)
+});
+
+setTimeout(()=>observer.unsubscribe(),7000);
+setTimeout(()=>observer2.unsubscribe(),9000);
