@@ -1,12 +1,26 @@
-import {ajax} from 'rxjs/ajax';
+import { Observable, Subscriber } from "rxjs";
 
-//AJAX FUNCTION E UMA FUNCAO DO RXJS PRA FAZER REQUISIÇOES AJAX
-const ajax$= ajax<any>('https://random-data-api.com/api/v2/users')
+const helloButton = document.querySelector("button#hello");
 
-ajax$.subscribe(data=>console.log(data.response.first_name));
+//HOT OBSERVERVALE E QUE COMPARTILHA A MESMA FONTE DE DADOS PRA TODAS AS ASSINATURAS
+//NESSE CASO A F0NTE DE DADOS E O CLICK NO BOTAO
+const helloClick$ = new Observable<MouseEvent>((subscriber) => {
+  helloButton.addEventListener("click", (event: MouseEvent) =>
+    subscriber.next(event)
+  );
+});
 
-ajax$.subscribe(data=>console.log(data.response.first_name));
+helloClick$.subscribe((event) =>
+  console.log("sub1:", event.type, event.x, event.y)
+);
 
-ajax$.subscribe(data=>console.log(data.response.first_name));
+//NESSE CASO A SEGUNDA ASSINATURA COMEÇOU DEPOIS DA PRIMEIRA, MAS QUANDO TIVER
+//AS DUAS ASSINATURAS AO MESMO TEMPO, AS DUAS IRÃO OBSERVAR A MESMA FONTE DE EMISSÃO DE VALORES
+//DIFERENTE DO COLD OBSERVABLE QUE TEM UMA FONTE DE EMSISSÃO PRA CADA ASSINAUTRA
 
-//COLD OBSERVABLE, PRA CADA ASSINATURA TEM UMA FONTE DE EMISSÃO NOVA
+setTimeout(() => {
+  console.log("COMECOU A SEGUNDA ASSINAUTRA");
+  helloClick$.subscribe((event) =>
+    console.log("sub2:", event.type, event.x, event.y)
+  );
+}, 5000);
