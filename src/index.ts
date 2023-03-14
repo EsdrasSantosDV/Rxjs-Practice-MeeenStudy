@@ -1,26 +1,29 @@
-import { Observable, Subscriber } from "rxjs";
+import { Observable, Subscriber,of } from "rxjs";
 
-const helloButton = document.querySelector("button#hello");
+//TEMOS OS OPERADORES OU FUNCOES DE CRIAÇÃO NO RXJS
+//UM DELES E O OF QUE TEM COMO OBJETIVO CRIAR UMA FONTE DE EMISSÃO, DADO UMA SERIE DE ARGUMENTOS7
+//E DEPOIS COMPLETAR
+const observer$=of(1,2,3,4,5,6);
 
-//HOT OBSERVERVALE E QUE COMPARTILHA A MESMA FONTE DE DADOS PRA TODAS AS ASSINATURAS
-//NESSE CASO A F0NTE DE DADOS E O CLICK NO BOTAO
-const helloClick$ = new Observable<MouseEvent>((subscriber) => {
-  helloButton.addEventListener("click", (event: MouseEvent) =>
-    subscriber.next(event)
-  );
+
+observer$.subscribe({next:value=>console.log(value),complete:()=>console.log("completou"),
 });
 
-helloClick$.subscribe((event) =>
-  console.log("sub1:", event.type, event.x, event.y)
-);
 
-//NESSE CASO A SEGUNDA ASSINATURA COMEÇOU DEPOIS DA PRIMEIRA, MAS QUANDO TIVER
-//AS DUAS ASSINATURAS AO MESMO TEMPO, AS DUAS IRÃO OBSERVAR A MESMA FONTE DE EMISSÃO DE VALORES
-//DIFERENTE DO COLD OBSERVABLE QUE TEM UMA FONTE DE EMSISSÃO PRA CADA ASSINAUTRA
+//ANALOGAMENTE PODEMOS FAZER ISSO AQUI
 
-setTimeout(() => {
-  console.log("COMECOU A SEGUNDA ASSINAUTRA");
-  helloClick$.subscribe((event) =>
-    console.log("sub2:", event.type, event.x, event.y)
-  );
-}, 5000);
+const observer2$=new Observable(subscriber=>{
+  subscriber.next(1),
+  subscriber.next(2),
+  subscriber.next(3),
+  subscriber.next(4),
+  subscriber.next(5),
+  subscriber.next(6),
+  subscriber.complete()
+})
+
+
+observer2$.subscribe({next:value=>console.log(value),complete:()=>console.log("completou a 2"),
+});
+
+
