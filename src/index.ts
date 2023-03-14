@@ -20,3 +20,12 @@ observableFromPromise$.subscribe({
   complete: () => console.log('Completed')
 });
 
+
+const fromArray$=from([1,2,3,4,5,6,7,8])
+
+fromArray$.subscribe({
+  next:value=>console.log(value),
+  complete:()=>console.log("completou o segundo")
+  
+  
+})
