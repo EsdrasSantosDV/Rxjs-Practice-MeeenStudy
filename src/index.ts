@@ -29,3 +29,8 @@ fromArray$.subscribe({
   
   
 })
+
+//TEMOS PRA STRING
+const source = from('ESDRAS SANTOS DE OLIVEIRA');
+
+const subscribe = source.subscribe(val => console.log(val));
