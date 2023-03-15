@@ -1,37 +1,55 @@
-import { fromEvent, Observable } from "rxjs";
+import { fromEvent, Observable, timer } from "rxjs";
 
-const triggerButton = document.querySelector('button#trigger');
+//E IGUAL O TIMEOUT QUE TAVA FAZENDO, ELE VAI FAZER UM TEMPORIZADOR ATE O TEMPO x
+const timer$=timer(1000);
+
+const subscribe=timer$.subscribe({
+  next:value=>console.log(value),
+  complete:()=>console.log("Completou")
+})
+
+//NA MÃO
+const timermanual$=new Observable<number>(subscriber => {
+  const timer2= setTimeout(()=>{
+          subscriber.next(0)
+          subscriber.complete()
+      },
+        1000
+      )
+
+    //E TEM A LOGICA TEARDOWN
+    return ()=>{
+      clearTimeout(timer2)
+    }
+})
+
+function timermanual$f(tempo:number):Observable<number>
+{
+  const timermanual$=new Observable<number>(subscriber => {
+    const timer2= setTimeout(()=>{
+          subscriber.next(0)
+          subscriber.complete()
+        },
+        1000
+    )
+
+    //E TEM A LOGICA TEARDOWN
+    return ()=>{
+      clearTimeout(timer2)
+    }
+  })
+  return timermanual$;
+}
 
 
-//TEMOS O FROM EVENT, QUE SERIA BASICAMENTE UM CRIADOR QEU PERMITE CIRAR UMA OBSERVAVEL DE DIFERENTES FONTES
-//SO QUE ELE E INFINITO ATE NOS DARMOS UM UNSUBSCRIBE E TIRAR O VAZAMENTO DE MEMOIRA
+const subscribe2=timermanual$.subscribe({
+  next:value=>console.log(value),
+  complete:()=>console.log("Completou2")
+})
 
-// const subscription = fromEvent<MouseEvent>(triggerButton, 'click').subscribe(
-//   event => console.log(event.type, event.x, event.y)
-// );
+const timer3$=timermanual$f(1000);
 
-//FAZENDO NOSSO PROPRIO FROM EVENT
-const triggerClick$ = new Observable<MouseEvent>(subscriber => {
-  const clickHandlerFn = (event: MouseEvent) => {
-    console.log('Event callback executed');
-    subscriber.next(event);
-  };
-  
-  triggerButton.addEventListener('click', clickHandlerFn);
-
-  return () => {
-    triggerButton.removeEventListener('click', clickHandlerFn);
-  };
-});
-
-const subscription = triggerClick$.subscribe(
-  //PEGAMOS A POSIÇÃO DE CADA CLIQUE NO MOUSE
-
-  event => console.log(event.type, event.x, event.y)
-);
-
-//E UM HOT DADO QUE USA A EMISSAÕ DE OUTRAS FONTES
-setTimeout(() => {
-  console.log('Unsubscribe');
-  subscription.unsubscribe();
-}, 9000);
+const subscribe3=timer3$.subscribe({
+  next:value=>console.log(value),
+  complete:()=>console.log("Completou3")
+})
