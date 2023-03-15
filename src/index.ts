@@ -1,55 +1,48 @@
-import { fromEvent, Observable, timer } from "rxjs";
+import {interval, Observable} from "rxjs";
+import {makeLogger} from "ts-loader/dist/logger";
 
-//E IGUAL O TIMEOUT QUE TAVA FAZENDO, ELE VAI FAZER UM TEMPORIZADOR ATE O TEMPO x
-const timer$=timer(1000);
+//O INTERVAL JA NÃO COMPLETA SE NÃO SUBSCREVER ELE
+//ELE E UMA FONTE INFINITA ATE O COMPLETE, MAS O INTERVAL NORMAL TEM UMA LOGICA TEARDOWN, TODOS TEM
+const interval$=interval(1000);
 
-const subscribe=timer$.subscribe({
+const subscribe=interval$.subscribe({
   next:value=>console.log(value),
   complete:()=>console.log("Completou")
 })
 
-//NA MÃO
-const timermanual$=new Observable<number>(subscriber => {
-  const timer2= setTimeout(()=>{
-          subscriber.next(0)
-          subscriber.complete()
-      },
-        1000
-      )
 
-    //E TEM A LOGICA TEARDOWN
-    return ()=>{
-      clearTimeout(timer2)
+setTimeout(()=>subscribe.unsubscribe(),5000);
+
+//VAMOS FAZER NOSSO PROPRIO
+function intervalFunction(tempo:number):Observable<number>{
+  return  new Observable(subscriber => {
+    let counter = 0;
+    const intervalo = setInterval(
+        () => {
+          subscriber.next(counter++)
+        }
+        , tempo);
+
+    //TEMOS QUE LIMPAR O NOSSO
+    return () => {
+
+      clearInterval(intervalo);
     }
-})
 
-function timermanual$f(tempo:number):Observable<number>
-{
-  const timermanual$=new Observable<number>(subscriber => {
-    const timer2= setTimeout(()=>{
-          subscriber.next(0)
-          subscriber.complete()
-        },
-        1000
-    )
+  });
 
-    //E TEM A LOGICA TEARDOWN
-    return ()=>{
-      clearTimeout(timer2)
-    }
-  })
-  return timermanual$;
 }
 
 
-const subscribe2=timermanual$.subscribe({
+const interval2$=intervalFunction(1000);
+
+const subscribe2=interval2$.subscribe({
   next:value=>console.log(value),
-  complete:()=>console.log("Completou2")
+  complete:()=>console.log("Completou a segunda"),
 })
 
-const timer3$=timermanual$f(1000);
+//nunca vai completar, somente parar a inscriçaõ
 
-const subscribe3=timer3$.subscribe({
-  next:value=>console.log(value),
-  complete:()=>console.log("Completou3")
-})
+setTimeout(()=>{subscribe2.unsubscribe();
+    console.log("unsubscribe")}
+    ,5000);
