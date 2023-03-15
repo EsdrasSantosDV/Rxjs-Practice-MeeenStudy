@@ -1,36 +1,37 @@
-import { from } from "rxjs";
+import { fromEvent, Observable } from "rxjs";
+
+const triggerButton = document.querySelector('button#trigger');
 
 
-//TEMOS O FROM OPERATOR, QUE AO INVES DO OF QUE RECEBE UMA SERIE DE ARGUMENTOS, ESSE AQUI CONSTUROI UM OBSERVABLE DE ACORDO
-//COM UM ARRAY, COM UMA PROMISSE, OU COM UM OBSERVABLE
+//TEMOS O FROM EVENT, QUE SERIA BASICAMENTE UM CRIADOR QEU PERMITE CIRAR UMA OBSERVAVEL DE DIFERENTES FONTES
+//SO QUE ELE E INFINITO ATE NOS DARMOS UM UNSUBSCRIBE E TIRAR O VAZAMENTO DE MEMOIRA
 
+// const subscription = fromEvent<MouseEvent>(triggerButton, 'click').subscribe(
+//   event => console.log(event.type, event.x, event.y)
+// );
 
+//FAZENDO NOSSO PROPRIO FROM EVENT
+const triggerClick$ = new Observable<MouseEvent>(subscriber => {
+  const clickHandlerFn = (event: MouseEvent) => {
+    console.log('Event callback executed');
+    subscriber.next(event);
+  };
+  
+  triggerButton.addEventListener('click', clickHandlerFn);
 
-//AQUI ELE FAZENDO COM UMA PROMISE, AO ASSINAR A PROMISSE, ELE JA DA O THEN E DEPOIS COMPLETA
-const somePromise = new Promise((resolve, reject) => {
-  resolve('Resolved!');
-  reject('Rejected!');
+  return () => {
+    triggerButton.removeEventListener('click', clickHandlerFn);
+  };
 });
 
-const observableFromPromise$ = from(somePromise);
+const subscription = triggerClick$.subscribe(
+  //PEGAMOS A POSIÇÃO DE CADA CLIQUE NO MOUSE
 
-observableFromPromise$.subscribe({
-  next: value => console.log(value),
-  error: err => console.log('Error:', err),
-  complete: () => console.log('Completed')
-});
+  event => console.log(event.type, event.x, event.y)
+);
 
-
-const fromArray$=from([1,2,3,4,5,6,7,8])
-
-fromArray$.subscribe({
-  next:value=>console.log(value),
-  complete:()=>console.log("completou o segundo")
-  
-  
-})
-
-//TEMOS PRA STRING
-const source = from('ESDRAS SANTOS DE OLIVEIRA');
-
-const subscribe = source.subscribe(val => console.log(val));
+//E UM HOT DADO QUE USA A EMISSAÕ DE OUTRAS FONTES
+setTimeout(() => {
+  console.log('Unsubscribe');
+  subscription.unsubscribe();
+}, 9000);
