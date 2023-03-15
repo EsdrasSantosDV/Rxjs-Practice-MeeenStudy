@@ -1,45 +1,28 @@
-import {forkJoin, interval, Observable, timer} from "rxjs";
+import { combineLatest, fromEvent } from "rxjs";
 
+const temperatureInput = document.getElementById('temperature-input');
+const conversionDropdown = document.getElementById('conversion-dropdown');
+const resultText = document.getElementById('result-text');
 
-import { ajax } from "rxjs/ajax";
-import {makeLogger} from "ts-loader/dist/logger";
+const temperatureInputEvent$ = fromEvent<any>(temperatureInput, 'input');
+const conversionInputEvent$ = fromEvent<any>(conversionDropdown, 'input');
 
-const randomName$ = ajax<any>('https://random-data-api.com/api/name/random_name');
+//O COMBINE LATEST PEGA OS DOIS ULTIMOS VALORES DE CADA E COMBINA, MAS SO TIVER VALOR EM CADA UM, SENÃO NÃO MUDA NADA
+//ELE EESPERA OS DOIS EMITIREM ALGUM VALOR PRO COMBINE LATEST EMITIR
+combineLatest([temperatureInputEvent$, conversionInputEvent$]).subscribe(
+    //ELE TAMBEM E UM QUE RECEBE UM ARRAY DE OBSERABLES
+    //SE INSCREVE
+    ([temperatureInputEvent, conversionInputEvent]) => {
+      const temperature = Number(temperatureInputEvent.target['value']);
+      const conversion = conversionInputEvent.target['value'];
 
-const randomNation$ = ajax<any>('https://random-data-api.com/api/nation/random_nation');
+      let result: number;
+      if (conversion === 'f-to-c') {
+        result = (temperature - 32) * 5/9;
+      } else if (conversion === 'c-to-f') {
+        result = temperature * 9/5 + 32;
+      }
 
-const randomFood$ = ajax<any>('https://random-data-api.com/api/food/random_food');
-
-// randomName$.subscribe(ajaxResponse => console.log(ajaxResponse.response.first_name));
-// randomNation$.subscribe(ajaxResponse => console.log(ajaxResponse.response.capital));
-// randomFood$.subscribe(ajaxResponse => console.log(ajaxResponse.response.dish));
-//
-//O FORK JOIN RECE
-forkJoin([randomName$, randomNation$, randomFood$]).subscribe(
-    ([nameAjax, nationAjax, foodAjax]) => console.log(`${nameAjax.response.first_name} is from ${nationAjax.response.capital} and likes to eat ${foodAjax.response.dish}.`)
+      resultText.innerText = String(result);
+    }
 );
-
-
-//COM O FORK JOIN RECEBE UMA MATRIX DE OBSERVABLES, E ELE SO VAI COMPLETAR, EMITIR OS ULTIMOS VALORES DE CADA FLUXO AO COMPLETART
-//POR EXEMPLO ACIMA, SE VC FAZER UM FORK JOIN DOS 3 FLUXOS, O FORK SO VAI COMPLETAR QUANDO TODOS OS 3 OBSERVABLES, COMPLETAREM, E ELE SO VAI PEGAR
-//O ULTIMO VALOR DE CADA UM
-
-// const fluxo1$=new Observable<number>(subscriber => {})
-//
-//
-//
-// const fluxo1$=timer(1000).subscribe(value => console.log("VALOR FLUXO 1: ",value));
-// //FLUXO VAI COMPLETAR DEPOIS DE 7 segundos
-// setTimeout(()=>fluxo1$.unsubscribe,7000);
-// const fluxo2$=timer(1000).subscribe(value => console.log("VALOR FLUXO 2: ",value));
-// //FLUXO VAI COMPLETAR DEPOIS DE 9 segundos
-// setTimeout(()=>fluxo2$.unsubscribe,9000);
-// const fluxo3$=timer(1000).subscribe(value => console.log("VALOR FLUXO 3: ",value));
-// //FLUXO VAI COMPLETAR DEPOIS DE 3 segundos
-// setTimeout(()=>fluxo3$.unsubscribe,3000);
-
-// forkJoin([fluxo1$,fluxo2$,fluxo3$]).subscribe(
-//     //POSSO FAZER UM DESTRUCTURING ARRAY
-//     ([inscricao1,inscricao2,inscricao3])=>console.log(`ULTIMOS VALORES${inscricao1}-${inscricao2}-${inscricao3}`)
-// )
-
