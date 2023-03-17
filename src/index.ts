@@ -15,8 +15,8 @@ const steam$ = new Observable<number>(subscriber => {
     }
 })
 
-//O FILTER ELE FILTRA O FLUXO DADO UMA CONDIÇÃO ESPECIFICADA
-const thavim=steam$.pipe(filter(value => value % 2 ==0)).subscribe({
+//O MAP ELE MAPEADA CADA VALOR , COM ELE PODEMOS MODIFICAR AS NOTIVACOES EMITIDAS
+const thavim=steam$.pipe(map(value => value * 2)).subscribe({
     next:value=>console.log(value)
 });
 
