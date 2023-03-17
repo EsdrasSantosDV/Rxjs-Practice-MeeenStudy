@@ -1,61 +1,26 @@
-import {combineLatest, forkJoin, Observable} from "rxjs";
+import {combineLatest, filter, forkJoin, map, Observable} from "rxjs";
+import {makeLogger} from "ts-loader/dist/logger";
 
 
-const fluxo1$=new Observable<number>(
-    subscriber => {
-        let counter=40;
-        const intervalzin=setInterval(()=>{
-                if(counter!=60)
-                {
-                        subscriber.next(counter++)
-                }
-                else
-                {
-                        subscriber.complete()
-                }
 
-        },1000)
-        return ()=>
-        {
-                clearInterval(intervalzin);
-        }
+//OS PIPES ELEES ADICIONAM MAIS LOGICA
+const steam$ = new Observable<number>(subscriber => {
+    let counter=0;
+    const interv=setInterval(()=>{
+        subscriber.next(counter++)
+    },1000);
+
+    return ()=>{
+        clearInterval(interv)
     }
+})
 
-)
-
-const fluxo2$=new Observable<number>(
-    subscriber => {
-            let counter=30;
-            const intervalzin=setInterval(()=>{
-                    if(counter!=35)
-                    {
-                            subscriber.next(counter++)
-                    }
-                    else
-                    {
-                            subscriber.complete()
-                    }
-
-            },1000)
-            return ()=>
-            {
-                    clearInterval(intervalzin);
-            }
-    }
-
-)
+//O FILTER ELE FILTRA O FLUXO DADO UMA CONDIÇÃO ESPECIFICADA
+const thavim=steam$.pipe(filter(value => value % 2 ==0)).subscribe({
+    next:value=>console.log(value)
+});
 
 
-
-
-
-
-forkJoin([fluxo1$,fluxo2$]).subscribe(
-    //POSSO FAZER UM DESTRUCTURING ARRAY
-    ([inscricao1,inscricao2])=>console.log(`ULTIMOS VALORES [${inscricao1}-${inscricao2}]`)
-)
-
-combineLatest([fluxo1$,fluxo2$]).subscribe(
-    //POSSO FAZER UM DESTRUCTURING ARRAY
-    ([inscricao1,inscricao2])=>console.log(`ULTIMOS VALORES [${inscricao1}-${inscricao2}]`)
-)
+setTimeout(()=>{thavim.unsubscribe(),
+    console.log("thavim nãpo quer mais se inscrito na gc")
+},100000)
