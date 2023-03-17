@@ -1,4 +1,4 @@
-import {combineLatest, filter, forkJoin, map, Observable} from "rxjs";
+import {combineLatest, filter, forkJoin, map, Observable, tap} from "rxjs";
 import {makeLogger} from "ts-loader/dist/logger";
 
 
@@ -15,10 +15,13 @@ const steam$ = new Observable<number>(subscriber => {
     }
 })
 
-//O MAP ELE MAPEADA CADA VALOR , COM ELE PODEMOS MODIFICAR AS NOTIVACOES EMITIDAS
-const thavim=steam$.pipe(map(value => value * 2)).subscribe({
-    next:value=>console.log(value)
-});
+
+//O TAP ELE FORNE EFEITOS COLATERAIS, USAMOS PRA FAZER LOGGING
+const source2$=steam$.pipe(tap((value)=>console.log("antes do map",value)),map(value => value * 2),tap((value)=>console.log(value)))
+
+
+const thavim=source2$.subscribe()
+
 
 
 setTimeout(()=>{thavim.unsubscribe(),
